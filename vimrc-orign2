@@ -1,0 +1,389 @@
+" All system-wide defaults are set in $VIMRUNTIME/debian.vim and sourced by
+" the call to :runtime you can find below.  If you wish to change any of those
+" settings, you should do it in this file (/etc/vim/vimrc), since debian.vim
+" will be overwritten everytime an upgrade of the vim packages is performed.
+" It is recommended to make changes after sourcing debian.vim since it alters
+" the value of the 'compatible' option.
+
+" This line should not be removed as it ensures that various options are
+" properly set to work with the Vim-related packages available in Debian.
+runtime! debian.vim
+
+" Uncomment the next line to make Vim more Vi-compatible
+" NOTE: debian.vim sets 'nocompatible'.  Setting 'compatible' changes numerous
+" options, so any other options should be set AFTER setting 'compatible'.
+"set compatible
+
+" Vim5 and later versions support syntax highlighting. Uncommenting the next
+" line enables syntax highlighting by default.
+if has("syntax")
+  syntax on
+endif
+
+" If using a dark background within the editing area and syntax highlighting
+" turn on this option as well
+set background=dark
+
+" Uncomment the following to have Vim jump to the last position when
+" reopening a file
+"if has("autocmd")
+"  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+"endif
+
+" Uncomment the following to have Vim load indentation rules and plugins
+" according to the detected filetype.
+"if has("autocmd")
+"  filetype plugin indent on
+"endif
+
+" The following are commented out as they cause vim to behave a lot
+" differently from regular Vi. They are highly recommended though.
+"set showcmd		" Show (partial) command in status line.
+"set showmatch		" Show matching brackets.
+"set ignorecase		" Do case insensitive matching
+"set smartcase		" Do smart case matching
+"set incsearch		" Incremental search
+"set autowrite		" Automatically save before commands like :next and :make
+"set hidden		" Hide buffers when they are abandoned
+"set mouse=a		" Enable mouse usage (all modes)
+
+" Source a global configuration file if available
+if filereadable("/etc/vim/vimrc.local")
+  source /etc/vim/vimrc.local
+endif
+
+"开启插件
+filetype plugin on
+autocmd FileType python set omnifunc=pythoncomplete#Complete
+autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
+autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+autocmd FileType xml set omnifunc=xmlcomplete#CompleteTags
+autocmd FileType php set omnifunc=phpcomplete#CompletePHP
+autocmd FileType c set omnifunc=ccomplete#Complete
+
+set nu
+
+let Tlist_Ctags_Cmd = '/usr/local/bin/ctags'
+"let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
+let Tlist_Show_One_File = 1          "不同时显示多个文件的tag，只显示当前文件的
+let Tlist_Exit_OnlyWindow = 1       "如果taglist窗口是最后一个窗口，则退出vim
+let Tlist_Use_Right_Window = 1        "在右侧窗口中显示taglist窗口
+let This_WinHeight = 100 "设置taglist的窗口大小
+let This_WidWidth =80
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"显示相关
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"允许折叠
+set foldenable
+"手动折叠
+set foldmethod=manual
+"显示标尺
+set ruler
+"载入文件类型插件
+filetype plugin on
+"为特定文件载入相关缩进文件
+filetype indent on
+"输入的命令显示出来
+set showcmd
+"光标移动到buffer的顶部和底部时保存2行距离
+set scrolloff=2
+"状态栏内容
+set statusline=%f%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [POS=%l,%v][%p%%]\ %{strftime(\"%d/%m/%y\ -\ %H:%M\")}
+"总是显示状态栏2
+set laststatus=2
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"键盘命令
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"映射全选+复制 ctrl+a
+map <C-A> ggVGY
+map <F12> gg=G
+"tab
+map<S-Left> :tabp<CR>
+map<S-Right> :tabn<CR>
+
+"去空行  
+nnoremap <F2> :g/^\s*$/d<CR> 
+"比较文件  
+nnoremap <C-F2> :vert diffsplit 
+"c,c++编译运行
+map <F5> :call CompileRunGcc()<CR>
+func! CompileRunGcc()
+    exec "w"
+    if &filetype == 'c'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+    elseif &filetype == 'cpp'
+        exec "!g++ % -o %<"
+        exec "!time ./%<"
+    elseif &filetype == 'java' 
+        exec "!javac %" 
+        exec "!time java %<"
+    elseif &filetype == 'sh'
+        :!time ./%
+	elseif &filetype == 'python'
+		exec "!time python3 %"
+	elseif &filetype == 'html'
+		exec "!chromium-browser % &"
+	elseif &filetype == 'go'
+		exec "!go build %<"
+		exec "!time go run %"
+	elseif &filetype == 'mkd'
+		exec "!/usr/share/vim/vim74/markdown.pl % > %.html"
+		exec "!chromium-browser %.html"
+    endif
+endfunc
+"C,C++的调试
+map <F8> :call Rungdb()<CR>
+func! Rungdb()
+    exec "w"
+	if &filetype == 'c'||&filetype == 'cpp'
+    	exec "!g++ % -g -o %<"
+    	exec "!gdb ./%<"
+	endif
+endfunc
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"实用设置
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"为C程序提供自动缩进
+set smartindent
+"设置softtabstop为4,输入tab后就跳4格
+"统一缩进为4
+set tabstop=4
+"自动缩进
+set autoindent
+set cindent
+"设置自动缩进4个空格
+set shiftwidth=4
+"高亮显示普通txt文件(需要txt.vim脚本)
+au BufRead,BufNewFile * setfiletype txt
+"自动补全
+:inoremap ( ()<ESC>i
+:inoremap ) <c-r>=ClosePair(')')<CR>
+:inoremap { {<CR>}<ESC>O
+:inoremap } <c-r>=ClosePair('}')<CR>
+:inoremap [ []<ESC>i
+:inoremap ] <c-r>=ClosePair(']')<CR>
+:inoremap " ""<ESC>i
+:inoremap ' ''<ESC>i
+function! ClosePair(char)
+    if getline('.')[col('.') - 1] == a:char
+		return "\<Right>"
+	else
+    	return a:char
+  	endif
+endfunction
+filetype plugin indent on 
+"打开文件类型检测，加了这句话才能用智能补全
+set completeopt=longest,menu
+"可以在buffer的任何地方使用鼠标
+set mouse=a
+set selection=exclusive
+set selectmode=mouse,key
+"显示中文帮助,要下载对应文件
+if version>=693
+	set helplang=cn
+	set encoding=utf-8
+endif
+"共享剪切板
+set clipboard+=unnamed
+"设置在状态显示的信息
+"set foldcolumn=0
+"set foldmethod=indent
+"set foldlevel=3
+"set foldenable "开始折叠
+"历史记录数
+set history=1000
+"禁止生成临时文件
+set nobackup
+set noswapfile
+"忽略搜索大小写
+"set ignorecase
+"搜索逐个字符高亮
+set hlsearch
+set incsearch
+"侦测文件类型
+filetype on
+"在被分割的文件间留空白
+set fillchars=vert:\ ,stl:\ ,stlnc:\ 
+"允许backspace和光标键跨越行边界
+set whichwrap+=<,>,h,l
+"通过使用:commands命令，告诉我们文件的哪一行被改变过
+"set report=0
+
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"新建.c,.h.cpp.python.java文件，自动插入文件头
+autocmd BufNewFile *.cpp,*.[ch],*.java,*.py,*.html,*.css,*.mkd,*.md,*.php exec ":call SetTitle()"
+"定义函数SetTitle(),自动加入文件头
+func SetTitle()
+	if &filetype == 'python'
+		call setline(1,"#!/usr/bin/env python3")
+		call append(line("."),"# coding=utf-8")
+		call append(line(".")+1,"")
+	endif
+	if expand("%:e") == 'cpp'
+		call setline(1,"#include<iostream>")
+		call append(line("."),"using namespace std;")
+		call append(line(".")+1,"int main(){")
+		call append(line(".")+2,"	")
+		call append(line(".")+3,"}")
+	endif	
+	if expand("%:e") == 'c'
+		call setline(1,"#include<stdio.h>")
+		call append(line("."),"int main(){")
+		call append(line(".")+1,"	")
+		call append(line(".")+2,"}")
+	endif	
+	if expand("%:e") == 'h'
+		call setline(1,"#ifndef _".toupper(expand("%:r"))."_H")
+		call append(line("."),"#define _".toupper(expand("%:r"))."_H")
+		call append(line(".")+1,"#endif")
+		call append(line(".")+2,"")
+	endif
+	if expand("%:e") == 'java'
+		call setline(1,"public class ".expand("%:r")."{")
+		call append(line("."),"	public static void main(String[] args){")
+		call append(line(".")+1,"		")
+		call append(line(".")+2,"	}")
+		call append(line(".")+3,"}")
+	endif
+	if expand("%:e") == 'html'
+		call setline(1,"<!DOCTYPE HTML>")
+		call append(line("."),"<html>")
+		call append(line(".")+1,"<head>")
+		call append(line(".")+2,"	<meta charset=\"utf-8\"/>")
+		call append(line(".")+3,"	<title></title>")
+		call append(line(".")+4,"</head>")
+		call append(line(".")+5,"<body>")
+		call append(line(".")+6,"	")
+		call append(line(".")+7,"</body>")
+		call append(line(".")+8,"<html>")
+	endif
+	if expand("%:e") == 'css'
+		call setline(1,"@charset \"utf-8\";")
+		call append(line("."),"")
+	endif
+	if expand("%:e") == 'mkd'|| expand("%:e") == 'md'
+		call setline(1,"<meta charset=\"utf-8\"/>")
+		call append(line("."),"")
+	endif
+	if expand("%:e") == 'php'
+		call setline(1,"<?php")
+		call append(line("."),"header(\"Content-Type=text/html;charset=utf-8\")")
+		call append(line(".")+1,"")
+		call append(line(".")+2,"?>")
+	endif
+endfunc
+"新建文件后自动定位到文件末尾
+"将.cpp文件定位到第四行
+autocmd BufNewFile *.cpp normal 4G
+"autocmd BufNewFile *.c normal 3G
+autocmd BufNewFile *.{java,php,c} normal 3G
+autocmd BufNewFile *.{py,h,mkd,md} normal G
+"autocmd BufNewFile *.h normal G
+autocmd BufNewFile *.html normal 8G
+autocmd BufNewFile *.css normal 2G
+"autocmd BufNewFile *.{mkd,md} normal G
+"添加代码关键字词典
+au FileType php setlocal dict+=~/vim74/dict/php_funclist.dict
+au FileType css setlocal dict+=~/vim74/dict/css.dict
+au FileType c setlocal dict+=~/vim74/dict/c.dict
+au FileType cpp setlocal dict+=~/vim74/dict/cpp.dict
+au FileType scale setlocal dict+=~/vim74/dict/scale.dict
+au FileType javascript setlocal dict+=~/vim74/dict/javascript.dict
+au FileType html setlocal dict+=~/vim74/dict/javascript.dict
+au FileType html setlocal dict+=~/vim74/dict/css.dict
+
+"打开拼写检查
+"set spell
+"""""""""""""""""""""""""""""""""""""""""""""""""""""
+"markdown配置
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""
+au BufRead,BufNewFile *.{md,mdown,mkd,mkdn,markdown,mdwn} set filetype=mkd
+au BufRead,BufNewFile *.{js} set filetype=javascript
+au BufRead,BufNewFile *.{go} set filetype=go
+"markdown to HTML
+"nmap md :!/usr/share/vim/vim74/markdown.pl % > %.html <CR><CR>
+"nmap F5 :!chromium-browser %.html & <CR><CR>
+"nmap \ \cc
+"vmap \ \cc
+"nmap tt :%s/\t/		/g<CR>
+"设置编码
+set enc=utf-8
+set fencs=utf-8,ucs-bom,shift-jis,gb18030,gbk,gb2312,cp936
+
+"高亮所在行列
+set cul
+set cuc
+"带有如下字符的单词不要被换行符分割
+set iskeyword+=_,$,@,%,#,-
+
+"python补全
+"let g:pydiction_location = '~/vim74/after/complete-dict'
+"let g:pydiction_menu_height = 20
+"let Tlist_Ctags_Cmd='/usr/local/bin/ctags'
+"let g:miniBufExplMapWindowNavVim = 1
+"let g:miniBufExplMapWindowNavArrows = 1
+"let g:miniBufExplMapCTabSwitchBufs = 1
+"let g:miniBufExplModSelTarget = 1
+
+"vundle
+set nocompatible  "be iMproved
+filetype off		"required
+"规定Vundle的路径
+set rtp+=/usr/share/vim/vim74/bundle/vundle/
+
+"规定插件的安装路径
+call vundle#rc('/usr/share/vim/vim74/bundle/')
+
+Bundle 'gmarik/vundle'
+" My Bundles here:
+" 
+" original repos on github
+Bundle 'tpope/vim-fugitive'
+Bundle 'rstacruz/sparkup', {'rtp': 'vim/'}
+Bundle 'Yggdroot/indentLine'
+"let g:indentLine_char = '┊'
+Bundle 'tpope/vim-rails.git'
+"vim-scripts repos
+Bundle 'L9'
+Bundle 'FuzzyFinder'
+" non github repos
+"Bundle 'https://github.com/wincent/command-t.git'
+Bundle 'Auto-Pairs'
+Bundle 'python-imports.vim'
+Bundle 'CaptureClipboard'
+Bundle 'ctrlp-modified.vim'
+Bundle 'last_edit_marker.vim'
+Bundle 'synmark.vim'
+
+Bundle 'JavaScript-syntax'
+Bundle 'jQuery'
+Bundle 'othree/html5.vim'
+Bundle 'groenewege/vim-less'
+Bundle 'Markdown'
+Bundle 'Markdown-syntax'
+Bundle 'php.vim-html-enhanced'
+
+Bundle 'java.vim'
+"Bundle 'javascript.vim'
+Bundle 'javacomplete'
+Bundle 'The-NERD-tree'
+Bundle 'The-NERD-Commenter'
+
+Bundle 'HTML5-Syntax-File'
+Bundle "pangloss/vim-javascript"
+Bundle 'Valloric/YouCompleteMe'
+let g:ycm_global_ycm_extra_conf='/usr/share/vim/vim74/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+
+
+filetype plugin indent on 
+map<F3> :NERDTreeToggle<CR>
+map<S-w> :NERDTreeMirror<CR>
+
