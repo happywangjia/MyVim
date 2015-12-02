@@ -113,13 +113,13 @@ func! CompileRunGcc()
 	elseif &filetype == 'python'
 		exec "!time python3 %"
 	elseif &filetype == 'html'
-		exec "!chromium-browser % &"
+		exec "!firefox % &"
 	elseif &filetype == 'go'
 		exec "!go build %<"
 		exec "!time go run %"
 	elseif &filetype == 'mkd'
 		exec "!/usr/share/vim/vim74/markdown.pl % > %.html"
-		exec "!chromium-browser %.html"
+		exec "!firefox %.html &"
     endif
 endfunc
 "C,C++的调试
@@ -271,7 +271,7 @@ func SetTitle()
 		call append(line(".")+5,"<body>")
 		call append(line(".")+6,"	")
 		call append(line(".")+7,"</body>")
-		call append(line(".")+8,"<html>")
+		call append(line(".")+8,"</html>")
 	endif
 	if expand("%:e") == 'css'
 		call setline(1,"@charset \"utf-8\";")
@@ -332,7 +332,7 @@ au BufRead,BufNewFile *.{js} set filetype=javascript
 au BufRead,BufNewFile *.{go} set filetype=go
 "markdown to HTML
 "nmap md :!/usr/share/vim/vim74/markdown.pl % > %.html <CR><CR>
-"nmap F5 :!chromium-browser %.html & <CR><CR>
+"nmap F5 :!firefox %.html & <CR><CR>
 "nmap \ \cc
 "vmap \ \cc
 "nmap tt :%s/\t/		/g<CR>
