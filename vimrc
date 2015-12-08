@@ -118,7 +118,8 @@ func! CompileRunGcc()
 		exec "!go build %<"
 		exec "!time go run %"
 	elseif &filetype == 'mkd'
-		exec "!/usr/share/vim/vim74/markdown.pl % > %.html"
+		"exec \"!/usr/share/vim/vim74/markdown.pl % > %.html"
+		exec "!markdown % > %.html"
 		exec "!firefox %.html &"
     endif
 endfunc
@@ -283,7 +284,7 @@ func SetTitle()
 	endif
 	if expand("%:e") == 'php'
 		call setline(1,"<?php")
-		call append(line("."),"header(\"Content-Type=text/html;charset=utf-8\")")
+		call append(line("."),"header(\"Content-Type=text/html;charset=utf-8\");")
 		call append(line(".")+1,"")
 		call append(line(".")+2,"?>")
 	endif
